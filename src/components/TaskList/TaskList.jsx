@@ -14,20 +14,28 @@ const TaskList = () => {
             // console.log('User data retrieved from localStorage:', JSON.parse(storedUser));
         }
     }, []);
-    console.log('taskData:', taskData);
+    // console.log('taskData:', taskData);
 
     return (
         <>
             <div id='task-list' className="h-[300px] w-ful mt-10 flex gap-4 overflow-x-auto p-4">
                 {
-                    taskData.tasks.map((elms) => {
-                        if 
+                    taskData?.tasks.map((elms, index) => {
+                        if (elms.active) {
+                            return <AcceptTask key={index} data={elms} />
+                        }
+                        if (elms.newTask) {
+                            return <NewTask key={index} data={elms} />
+                        }
+                        if (elms.completed) {
+                            return <CompleteTask key={index} data={elms} />
+                        }
+                        if (elms.failed) {
+                            return <FailedTask key={index} data={elms} />
+
+                        }
                     })
                 }
-                {/* <AcceptTask />
-                <NewTask />
-                <CompleteTask />
-                <FailedTask /> */}
             </div>
         </>
     )

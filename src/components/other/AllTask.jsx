@@ -1,66 +1,70 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { AuthContext } from '../../context/AuthProvider';
 
-const tasks = [
-    {
-        id: 1,
-        title: 'Design Homepage',
-        description: 'Create the homepage layout and responsive design.',
-        status: 'In Progress',
-        priority: 'High',
-        dueDate: '2025-05-10',
-    },
-    {
-        id: 2,
-        title: 'Fix Login Bug',
-        description: 'Resolve issue preventing user login on mobile.',
-        status: 'Pending',
-        priority: 'Medium',
-        dueDate: '2025-05-07',
-    },
-    {
-        id: 3,
-        title: 'Deploy to Production',
-        description: 'Push latest version to production server.',
-        status: 'Completed',
-        priority: 'Low',
-        dueDate: '2025-05-05',
-    },
-];
-
-const getPriorityColor = (priority) => {
-    switch (priority) {
-        case 'High':
-            return 'bg-red-600'; // Darker Red
-        case 'Medium':
-            return 'bg-yellow-500'; // Yellow
-        case 'Low':
-            return 'bg-green-600'; // Darker Green
-        default:
-            return 'bg-gray-400';
-    }
+const getStatus = (task) => {
+    if (task.completed) return { label: 'Completed', color: 'bg-green-500' };
+    if (task.failed) return { label: 'Failed', color: 'bg-red-500' };
+    if (task.active) return { label: 'Active', color: 'bg-blue-500' };
+    if (task.newTask) return { label: 'New', color: 'bg-yellow-500' };
+    return { label: 'Unknown', color: 'bg-gray-400' };
 };
 
 const AllTask = () => {
+    const { employees } = useContext(AuthContext);
+
+    const allTasks = employees.flatMap((employee) =>
+        employee.tasks.map((task, index) => ({
+            ...task,
+            employeeName: employee.firstName,
+            taskId: `${employee.id}-${index + 1}`,
+        }))
+    );
+
     return (
-        <div className="p-4 bg-gray-50">
-            <h2 className="text-xl font-bold mb-4">All Tasks</h2>
-            <div className="grid gap-3">
-                {tasks.map((task) => (
-                    <div key={task.id} className="bg-white p-2 rounded-lg shadow-sm">
-                        <div className="flex justify-between items-center mb-1">
-                            <span
-                                className={`text-white text-xs px-2 py-1 rounded-full ${getPriorityColor(
-                                    task.priority
-                                )}`}
-                            >
-                                {task.priority}
-                            </span>
-                            <span className="text-xs text-gray-500">Due: {task.dueDate}</span>
-                        </div>
-                        <h3 className="text-sm font-semibold">{task.title}</h3>
-                        <p className="text-gray-600 text-xs mt-1">{task.description}</p>
-                    </div>
-                ))}
+        <div className="p-6 bg-gray-100 min-h-screen">
+            <h2 className="text-2xl font-bold mb-6">All Employee Tasks</h2>
+
+            <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-lg shadow">
+                    <thead className="bg-gray-200 text-gray-700 text-sm">
+                        <tr>
+                            <th className="py-3 px-4 text-left">#</th>
+                            <th className="py-3 px-4 text-left">Employee</th>
+                            <th className="py-3 px-4 text-left">Title</th>
+                            <th className="py-3 px-4 text-left">Description</th>
+                            <th className="py-3 px-4 text-left">Category</th>
+                            <th className="py-3 px-4 text-left">Date</th>
+                            <th className="py-3 px-4 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody className="text-sm text-gray-700">
+                        {allTasks.map((task, idx) => {
+                            const status = getStatus(task);
+                            return (
+                                <tr key={task.taskId} className="border-b hover:bg-gray-50">
+                                    <td className="py-3 px-4">{idx + 1}</td>
+                                    <td className="py-3 px-4">{task.employeeName}</td>
+                                    <td className="py-3 px-4 font-medium">{task.title}</td>
+                                    <td className="py-3 px-4">{task.description}</td>
+                                    <td className="py-3 px-4">{task.category}</td>
+                                    <td className="py-3 px-4">{task.date}</td>
+                                    <td className="py-3 px-4">
+                                        <span className={`text-white text-xs px-2 py-1 rounded-full ${status.color}`}>
+                                            {status.label}
+                                        </span>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        {allTasks.length === 0 && (
+                            <tr>
+                                <td colSpan="7" className="text-center py-6 text-gray-500">
+                                    No tasks found.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

@@ -9,6 +9,14 @@ const App = () => {
   const [User, setUser] = useState(null);
   const authData = useContext(AuthContext);
 
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem('loggedInUser', '');
+    if (loggedInUser) {
+      const user = JSON.parse(loggedInUser);
+      setUser(user);
+    }
+  }, []);
+
   const hanldleLogin = (email, password) => {
     if (email === 'admin@example.com' && password === '123') {
       setUser({ role: 'admin' });
@@ -33,10 +41,11 @@ const App = () => {
       {!User ? (
         <Login hanldleLogin={hanldleLogin} />
       ) : User.role === 'employee' ? (
-        <EmployeeDashboard />
+        <EmployeeDashboard setUser={setUser} />
       ) : (
-        <AdminDashboard />
+        <AdminDashboard setUser={setUser} />
       )}
+
     </>
   );
 };
